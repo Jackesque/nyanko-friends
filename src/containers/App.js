@@ -2,44 +2,47 @@ import React, { Component } from 'react';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
+import ErrorBoundary from '../components/ErrorBoundary';
 import './App.css';
 
 class App extends Component {
-  constructor() {
-    super()
-    this.state = {
-      robots: [],
-      searchfield: ''
-    }
-  }
+	constructor() {
+		super();
+		this.state = {
+			nyanko: [],
+			searchField: ''
+		}
+	}
 
-  componentDidMount() {
-    fetch('https://jsonplaceholder.typicode.com/users')
-      .then(response=> response.json())
-      .then(users => {this.setState({ robots: users})});
-  }
+	componentDidMount() {
+		fetch('https://jsonplaceholder.typicode.com/users')
+			.then(response => response.json())
+			.then(users => this.setState({ nyanko: users }));
+	}
 
-  onSearchChange = (event) => {
-    this.setState({ searchfield: event.target.value })
-  }
+	onSearchChange = (event) => {
+		this.setState({ searchField: event.target.value });
+	}
 
-  render() {
-    const { robots, searchfield } = this.state;
-    const filteredRobots = robots.filter(robot =>{
-      return robot.name.toLowerCase().includes(searchfield.toLowerCase());
-    })
-    return !robots.length ?
-      <h1>Loading</h1> :
-      (
-        <div className='tc'>
-          <h1 className='f1'>RoboFriends</h1>
-          <SearchBox searchChange={this.onSearchChange}/>
-          <Scroll>
-            <CardList robots={filteredRobots} />
-          </Scroll>
-        </div>
-      );
-  }
+	render() {
+		const filteredNyanko = this.state.nyanko.filter(nyanko => {
+			return nyanko.name.toLowerCase().includes(this.state.searchField.toLowerCase())
+		});
+		if (this.state.nyanko.length === 0) {return <h1 className='tc'>Loading...</h1>}
+		else {
+			return (
+				<div className='tc'>
+					<h1 className='f1'>Nyanko Friends</h1>
+					<SearchBox searchChange={this.onSearchChange}/>
+					<Scroll>
+						<ErrorBoundary>
+							<CardList nyanko={filteredNyanko}/>
+						</ErrorBoundary>
+					</Scroll>
+				</div>
+			)
+		}
+	}
 }
 
 export default App;
